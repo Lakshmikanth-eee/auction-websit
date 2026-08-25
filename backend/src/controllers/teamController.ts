@@ -25,17 +25,19 @@ export const registerTeam = async (req: Request, res: Response) => {
   try {
     const { teamName, participant1Name, participant2Name, collegeName, department, phone, email } = req.body;
 
-    if (!teamName || !participant1Name || !participant2Name || !collegeName || !department || !email) {
+    if (!teamName || !participant1Name || !participant2Name || !collegeName || !department) {
       return res.status(400).json({
         success: false,
-        message: 'All fields are required. Maximum 2 participants allowed per team.',
+        message: 'All required fields (Team Name, Participant Names, College, Department) must be filled.',
       });
     }
 
+    const trimmedTeamName = teamName.trim();
+
     // Check if team name already registered
-    const existingTeam = await prisma.team.findUnique({
-      where: { teamName: teamName.trim() },
-    });
+    const existingTeam = await prisma.team.findFirst({
+      where: { teamName: { equals: trimmedTeamName } },
+    }).catch(() => null);
 
     if (existingTeam) {
       return res.status(400).json({
@@ -49,14 +51,14 @@ export const registerTeam = async (req: Request, res: Response) => {
     const team = await prisma.team.create({
       data: {
         registrationNumber,
-        teamName: teamName.trim(),
+        teamName: trimmedTeamName,
         participant1Name: participant1Name.trim(),
         participant2Name: participant2Name.trim(),
         collegeName: collegeName.trim(),
         department: department.trim(),
         phone: phone ? phone.trim() : '',
-        email: email.trim(),
-        points: 10000, // Initial balance of 10,000 points
+        email: email && email.trim() ? email.trim() : `${trimmedTeamName.toLowerCase().replace(/\s+/g, '')}@electrobit.com`,
+        points: 10000,
         status: 'ACTIVE',
       },
     });
@@ -82,7 +84,7 @@ export const registerTeam = async (req: Request, res: Response) => {
     });
   } catch (error: any) {
     console.error('Registration error:', error);
-    return res.status(500).json({ success: false, message: 'Server error during team registration.' });
+    return res.status(500).json({ success: false, message: error.message || 'Server error during team registration.' });
   }
 };
 
