@@ -1,0 +1,109 @@
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model Admin {
+  id        String   @id @default(cuid())
+  username  String   @unique
+  password  String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Team {
+  id                 String             @id @default(cuid())
+  registrationNumber String             @unique
+  teamName           String             @unique
+  participant1Name   String
+  participant2Name   String
+  collegeName        String
+  department         String
+  phone              String
+  email              String
+  points             Int                @default(10000)
+  status             String             @default("ACTIVE") // ACTIVE, DISABLED
+  correctAnswers     Int                @default(0)
+  wrongAnswers       Int                @default(0)
+  createdAt          DateTime           @default(now())
+  updatedAt          DateTime           @updatedAt
+  bids               Bid[]
+  scoreTransactions  ScoreTransaction[]
+}
+
+model Question {
+  id            String    @id @default(cuid())
+  questionText  String
+  correctAnswer String
+  difficulty    String    // EASY, MEDIUM, HARD, SUPER_CHALLENGE
+  basePoints    Int       // 100, 300, 500, 1000
+  timeLimit     Int       @default(30)
+  category      String
+  isUsed        Boolean   @default(false)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  auctions      Auction[]
+}
+
+model Auction {
+  id                  String             @id @default(cuid())
+  questionId          String
+  question            Question           @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  status              String             @default("IDLE") // IDLE, BIDDING_OPEN, BIDDING_CLOSED, WINNER_CONFIRMED, ANSWER_IN_PROGRESS, COMPLETED, CANCELLED
+  currentBid          Int                @default(0)
+  highestBidderTeamId String?
+  winningTeamId       String?
+  winningBid          Int?
+  answerResult        String?            // PENDING, CORRECT, WRONG, NO_ANSWER
+  scoreBefore         Int?
+  scoreAfter          Int?
+  timerRemaining      Int                @default(30)
+  timerType           String             @default("BIDDING") // BIDDING, ANSWER
+  isTimerRunning      Boolean            @default(false)
+  createdAt           DateTime           @default(now())
+  updatedAt           DateTime           @updatedAt
+  bids                Bid[]
+  scoreTransactions   ScoreTransaction[]
+}
+
+model Bid {
+  id        String   @id @default(cuid())
+  auctionId String
+  auction   Auction  @relation(fields: [auctionId], references: [id], onDelete: Cascade)
+  teamId    String
+  team      Team     @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  amount    Int
+  timestamp DateTime @default(now())
+}
+
+model ScoreTransaction {
+  id             String   @id @default(cuid())
+  teamId         String
+  team           Team     @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  auctionId      String?
+  auction        Auction? @relation(fields: [auctionId], references: [id], onDelete: SetNull)
+  amount         Int
+  type           String   // AUCTION_WIN, AUCTION_LOSS, ADMIN_ADD, ADMIN_SUBTRACT, RESET
+  previousPoints Int
+  newPoints      Int
+  reason         String
+  timestamp      DateTime @default(now())
+  adminUsername  String?
+}
+
+model EventSettings {
+  id                  String  @id @default("default")
+  eventName           String  @default("ELECTROBIT")
+  eventSubtitle        String  @default("THE EEE AUCTION CHALLENGE")
+  currentAuctionId    String?
+  eventStatus         String  @default("NOT_STARTED") // NOT_STARTED, IN_PROGRESS, PAUSED, COMPLETED
+  startingPoints      Int     @default(10000)
+  minBidIncrement     Int     @default(100)
+  biddingTimerDefault Int     @default(90)
+  answerTimerDefault  Int     @default(30)
+  nonBiddingPenalty   Int     @default(0)
+}
