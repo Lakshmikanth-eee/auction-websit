@@ -150,9 +150,54 @@ io.on('connection', async (socket) => {
   });
 });
 
+// Auto-initialize DB schema and Seed data if DB tables/records are missing
+async function ensureDatabaseInitialized() {
+  try {
+    const adminCount = await prisma.admin.count().catch(() => -1);
+    if (adminCount === -1) {
+      console.log('⚡ Initializing SQLite database schema...');
+      const { execSync } = require('child_process');
+      execSync('npx prisma db push --accept-data-loss', { stdio: 'inherit' });
+      console.log('✅ SQLite database schema pushed.');
+    }
+
+    // Ensure Default Settings exist
+    let settings = await prisma.eventSettings.findUnique({ where: { id: 'default' } }).catch(() => null);
+    if (!settings) {
+      await prisma.eventSettings.create({
+        data: {
+          id: 'default',
+          eventName: 'ELECTROBIT',
+          eventSubtitle: 'THE EEE AUCTION CHALLENGE',
+          eventStatus: 'NOT_STARTED',
+          startingPoints: 10000,
+          minBidIncrement: 100,
+          biddingTimerDefault: 30,
+          answerTimerDefault: 30,
+        },
+      });
+      console.log('✅ Default Event Settings initialized.');
+    }
+
+    // Ensure Admin Account exists
+    const adminUser = await prisma.admin.findFirst().catch(() => null);
+    if (!adminUser) {
+      const bcrypt = require('bcryptjs');
+      const hashedPassword = await bcrypt.hash('electrobit2026', 10);
+      await prisma.admin.create({
+        data: { username: 'admin', password: hashedPassword },
+      });
+      console.log('✅ Default Admin created (admin / electrobit2026).');
+    }
+  } catch (err) {
+    console.error('Error auto-initializing database:', err);
+  }
+}
+
 // Start Server
-server.listen(PORT, () => {
-  console.log(`
+ensureDatabaseInitialized().then(() => {
+  server.listen(PORT, () => {
+    console.log(`
 ==================================================
 ⚡ ELECTROBIT - THE EEE AUCTION CHALLENGE SERVER
 ==================================================
@@ -160,5 +205,6 @@ server.listen(PORT, () => {
 🌐 API Base URL: http://localhost:${PORT}/api
 🔌 WebSocket Server Active
 ==================================================
-  `);
+    `);
+  });
 });
