@@ -1,0 +1,10 @@
+﻿services:
+  - type: web
+    name: electrobit-backend
+    env: node
+    rootDir: backend
+    buildCommand: yarn install && yarn build
+    startCommand: npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
