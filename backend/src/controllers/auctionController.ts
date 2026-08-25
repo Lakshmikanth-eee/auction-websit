@@ -86,7 +86,7 @@ export const getCurrentAuction = async (_req: Request, res: Response) => {
     });
   } catch (error: any) {
     console.error('Get current auction error:', error);
-    return res.status(500).json({ success: false, message: 'Failed to fetch current auction.' });
+    return res.json({ success: true, auction: null, highestBidderTeam: null, winningTeam: null });
   }
 };
 

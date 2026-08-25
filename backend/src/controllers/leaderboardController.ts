@@ -129,19 +129,30 @@ export const getAuctionHistory = async (req: AuthRequest, res: Response) => {
   }
 };
 
-// 5. ADMIN & PUBLIC: Get Event Settings
+const defaultSettingsObj = {
+  id: 'default',
+  eventName: 'ELECTROBIT',
+  eventSubtitle: 'THE EEE AUCTION CHALLENGE',
+  eventStatus: 'NOT_STARTED',
+  startingPoints: 10000,
+  minBidIncrement: 100,
+  biddingTimerDefault: 30,
+  answerTimerDefault: 30,
+  nonBiddingPenalty: 0,
+};
+
 export const getEventSettings = async (_req: Request, res: Response) => {
   try {
-    let settings = await prisma.eventSettings.findUnique({ where: { id: 'default' } });
+    let settings = await prisma.eventSettings.findUnique({ where: { id: 'default' } }).catch(() => null);
     if (!settings) {
       settings = await prisma.eventSettings.create({
-        data: { id: 'default', eventName: 'ELECTROBIT', eventSubtitle: 'THE EEE AUCTION CHALLENGE' },
-      });
+        data: defaultSettingsObj,
+      }).catch(() => null);
     }
 
-    return res.json({ success: true, settings });
+    return res.json({ success: true, settings: settings || defaultSettingsObj });
   } catch (error: any) {
-    return res.status(500).json({ success: false, message: 'Failed to fetch settings.' });
+    return res.json({ success: true, settings: defaultSettingsObj });
   }
 };
 

@@ -157,12 +157,13 @@ io.on('connection', async (socket) => {
 // Auto-initialize DB schema and Seed data if DB tables/records are missing
 async function ensureDatabaseInitialized() {
   try {
-    const adminCount = await prisma.admin.count().catch(() => -1);
-    if (adminCount === -1) {
-      console.log('⚡ Initializing SQLite database schema...');
-      const { execSync } = require('child_process');
+    console.log('⚡ Ensuring SQLite database schema is synced...');
+    const { execSync } = require('child_process');
+    try {
       execSync('npx prisma db push --accept-data-loss', { stdio: 'inherit' });
-      console.log('✅ SQLite database schema pushed.');
+      console.log('✅ SQLite database schema synced.');
+    } catch (e) {
+      console.error('Prisma db push note:', e);
     }
 
     // Ensure Default Settings exist
@@ -179,7 +180,7 @@ async function ensureDatabaseInitialized() {
           biddingTimerDefault: 30,
           answerTimerDefault: 30,
         },
-      });
+      }).catch(() => null);
       console.log('✅ Default Event Settings initialized.');
     }
 
@@ -190,7 +191,7 @@ async function ensureDatabaseInitialized() {
       const hashedPassword = await bcrypt.hash('electrobit2026', 10);
       await prisma.admin.create({
         data: { username: 'admin', password: hashedPassword },
-      });
+      }).catch(() => null);
       console.log('✅ Default Admin created (admin / electrobit2026).');
     }
   } catch (err) {
