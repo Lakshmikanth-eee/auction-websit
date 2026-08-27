@@ -13,8 +13,9 @@ import { prisma } from './prisma/db';
 
 dotenv.config();
 
+const absoluteDbPath = path.resolve(__dirname, '../prisma/dev.db');
 if (!process.env.DATABASE_URL || !process.env.DATABASE_URL.startsWith('file:')) {
-  process.env.DATABASE_URL = 'file:./dev.db';
+  process.env.DATABASE_URL = `file:${absoluteDbPath}`;
 }
 
 const app = express();
