@@ -30,7 +30,7 @@ async function main() {
       eventName: 'ELECTROBIT',
       eventSubtitle: 'THE EEE AUCTION CHALLENGE',
       eventStatus: 'NOT_STARTED',
-      startingPoints: 10000,
+      startingPoints: 50000,
       minBidIncrement: 100,
       biddingTimerDefault: 30,
       answerTimerDefault: 30,
@@ -49,7 +49,7 @@ async function main() {
       department: 'Electrical & Electronics Engineering',
       phone: '9876543210',
       email: 'arjun.ck@college.edu',
-      points: 10000,
+      points: 50000,
       status: 'ACTIVE',
     },
     {
@@ -61,7 +61,7 @@ async function main() {
       department: 'Electrical & Electronics Engineering',
       phone: '9876543211',
       email: 'kavya.pw@college.edu',
-      points: 10000,
+      points: 50000,
       status: 'ACTIVE',
     },
     {
@@ -73,7 +73,7 @@ async function main() {
       department: 'Electrical & Electronics Engineering',
       phone: '9876543212',
       email: 'vikram.es@college.edu',
-      points: 10000,
+      points: 50000,
       status: 'ACTIVE',
     },
     {
@@ -85,7 +85,7 @@ async function main() {
       department: 'Electrical & Electronics Engineering',
       phone: '9876543213',
       email: 'ananya.vm@college.edu',
-      points: 10000,
+      points: 50000,
       status: 'ACTIVE',
     },
     {
@@ -97,7 +97,7 @@ async function main() {
       department: 'Electrical & Electronics Engineering',
       phone: '9876543214',
       email: 'devansh.of@college.edu',
-      points: 10000,
+      points: 50000,
       status: 'ACTIVE',
     },
   ];

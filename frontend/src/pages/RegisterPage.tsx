@@ -78,7 +78,7 @@ export const RegisterPage: React.FC = () => {
           </div>
           <h1 className="text-4xl font-extrabold text-white">Team Registration</h1>
           <p className="text-sm text-slate-400 mt-2">
-            Maximum 2 participants per team. Initial balance: <strong className="text-yellow-400">10,000 points</strong>.
+            Maximum 2 participants per team. Initial balance: <strong className="text-yellow-400">50,000 points</strong>.
           </p>
         </div>
 
@@ -95,7 +95,7 @@ export const RegisterPage: React.FC = () => {
 
             <h2 className="text-3xl font-black text-white mb-2">Registration Successful! Redirecting to Auction...</h2>
             <p className="text-slate-300 text-sm mb-6">
-              Your team has been recorded! Automatically entering live auction arena with 10,000 points...
+              Your team has been recorded! Automatically entering live auction arena with 50,000 points...
             </p>
 
             {/* Registration Card */}
