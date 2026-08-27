@@ -596,7 +596,7 @@ export const LivePage: React.FC = () => {
                 <div className="pt-4 border-t border-slate-800">
                   <span className="text-xs font-bold text-slate-400 uppercase block">
                     {status === 'COMPLETED' && auction.answerResult === 'CORRECT'
-                      ? `WINNING BID DEDUCTED (-${auction.winningBid || auction.currentBid}) + BASE (+${auction.question?.basePoints})`
+                      ? `WINNING BID ADDED TO BALANCE (+${auction.winningBid || auction.currentBid} PTS)`
                       : 'BID VALUE FOR EVALUATION'}
                   </span>
                   <span className="text-5xl font-black text-yellow-400 font-mono">

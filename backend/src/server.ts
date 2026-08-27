@@ -54,7 +54,6 @@ app.use((req, _res, next) => {
 app.use('/api', apiRouter);
 
 // Serve Static Frontend Production Build
-import path from 'path';
 const frontendDistPath = path.resolve(__dirname, '../../frontend/dist');
 app.use(express.static(frontendDistPath));
 

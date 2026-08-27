@@ -213,17 +213,13 @@ export const placeBid = async (req: AuthRequest, res: Response) => {
       });
     }
 
-    // Deduct bid amount from team balance immediately
-    const previousPoints = team.points;
-    const newPoints = Math.max(0, previousPoints - bidAmount);
-
     // Update auction highest bidder & current bid if this bid is higher than previous highest bid
     const isNewHighest = bidAmount > auction.currentBid || !auction.highestBidderTeamId;
     const newCurrentBid = isNewHighest ? bidAmount : auction.currentBid;
     const newHighestBidderId = isNewHighest ? team.id : auction.highestBidderTeamId;
 
-    // Use Prisma transaction for atomic bid placement and score deduction
-    const [bidRecord, updatedTeam, _scoreTrans, updatedAuction] = await prisma.$transaction([
+    // Use Prisma transaction for atomic bid placement
+    const [bidRecord, updatedTeam, updatedAuction] = await prisma.$transaction([
       prisma.bid.create({
         data: {
           auctionId: auction.id,
@@ -232,21 +228,8 @@ export const placeBid = async (req: AuthRequest, res: Response) => {
         },
         include: { team: true },
       }),
-      prisma.team.update({
+      prisma.team.findUniqueOrThrow({
         where: { id: team.id },
-        data: { points: newPoints },
-      }),
-      prisma.scoreTransaction.create({
-        data: {
-          teamId: team.id,
-          auctionId: auction.id,
-          amount: -bidAmount,
-          type: 'BID_COMMIT',
-          previousPoints,
-          newPoints,
-          reason: `Bid Placed (-${bidAmount} PTS) for "${auction.question?.questionText.slice(0, 30)}..."`,
-          adminUsername: 'system',
-        },
       }),
       prisma.auction.update({
         where: { id: auction.id },
@@ -259,7 +242,7 @@ export const placeBid = async (req: AuthRequest, res: Response) => {
     ]);
 
     if (ioInstance) {
-      ioInstance.emit('score_updated', { teamId: team.id, newPoints });
+      ioInstance.emit('score_updated', { teamId: team.id, newPoints: team.points });
       ioInstance.emit('leaderboard_updated');
       ioInstance.emit('bid_placed', {
         bid: bidRecord,
@@ -481,8 +464,8 @@ export const submitAnswerOutcome = async (req: AuthRequest, res: Response) => {
     const questionBasePoints = auction.question.basePoints || 0;
 
     if (outcome === 'CORRECT') {
-      // 1. CORRECT ANSWER: Add question base points (bid was ALREADY deducted on bid placement), mark auction COMPLETED
-      const pointDelta = questionBasePoints;
+      // 1. CORRECT ANSWER: Add the exact points the team bided (+bidAmount) to team balance
+      const pointDelta = bidAmount;
       const newPoints = previousPoints + pointDelta;
 
       const [updatedTeam, _scoreTrans, updatedAuction] = await prisma.$transaction([
@@ -501,7 +484,7 @@ export const submitAnswerOutcome = async (req: AuthRequest, res: Response) => {
             type: 'AUCTION_WIN',
             previousPoints,
             newPoints,
-            reason: `Auction Win (+${questionBasePoints} base pts) for "${auction.question.questionText.slice(0, 30)}..."`,
+            reason: `Auction Win (+${bidAmount} PTS Bid Added) for "${auction.question.questionText.slice(0, 30)}..."`,
             adminUsername: req.admin?.username || 'admin',
           },
         }),
@@ -537,18 +520,37 @@ export const submitAnswerOutcome = async (req: AuthRequest, res: Response) => {
 
       return res.json({
         success: true,
-        message: `Answer CORRECT! ${updatedTeam.teamName} won the question (+${questionBasePoints} base pts).`,
+        message: `Answer CORRECT! ${updatedTeam.teamName} won (+${bidAmount} PTS Bid Added).`,
         outcome: 'CORRECT',
         team: updatedTeam,
         auction: updatedAuction,
       });
     } else {
-      // 2. WRONG ANSWER: Increment team wrongAnswers count & retain post-bid points
-      const updatedTeam = await prisma.team.update({
-        where: { id: currentEvaluatingTeam.id },
-        data: { wrongAnswers: { increment: 1 } },
-      });
-      const newPoints = previousPoints;
+      // 2. WRONG ANSWER: Deduct the points the team bided (-bidAmount) from team balance
+      const pointDelta = -bidAmount;
+      const newPoints = Math.max(0, previousPoints + pointDelta);
+
+      const [updatedTeam, _scoreTrans] = await prisma.$transaction([
+        prisma.team.update({
+          where: { id: currentEvaluatingTeam.id },
+          data: {
+            points: newPoints,
+            wrongAnswers: { increment: 1 },
+          },
+        }),
+        prisma.scoreTransaction.create({
+          data: {
+            teamId: currentEvaluatingTeam.id,
+            auctionId: auction.id,
+            amount: pointDelta,
+            type: 'AUCTION_LOSS',
+            previousPoints,
+            newPoints,
+            reason: `Answer WRONG (-${bidAmount} PTS Bid Deducted) for "${auction.question.questionText.slice(0, 30)}..."`,
+            adminUsername: req.admin?.username || 'admin',
+          },
+        }),
+      ]);
 
       // Check if there is a NEXT HIGHEST BIDDER among the bids for this auction!
       const currentTeamIndex = auction.bids.findIndex((b) => (b.teamId === currentEvaluatingTeam.id || b.team?.id === currentEvaluatingTeam.id));

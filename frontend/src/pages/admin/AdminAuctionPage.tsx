@@ -770,7 +770,7 @@ export const AdminAuctionPage: React.FC = () => {
                       className="py-4 rounded-2xl font-black text-black bg-gradient-to-r from-green-400 to-emerald-500 hover:from-green-300 hover:to-emerald-400 text-base shadow-lg shadow-green-500/20 flex items-center justify-center space-x-2"
                     >
                       <CheckCircle2 className="w-6 h-6" />
-                      <span>✅ MARK CORRECT (-{auction.winningBid || auction.currentBid} Bid +{auction.question?.basePoints} Base)</span>
+                      <span>✅ MARK CORRECT (+{auction.winningBid || auction.currentBid} PTS Bid)</span>
                     </button>
 
                     <button
@@ -778,7 +778,7 @@ export const AdminAuctionPage: React.FC = () => {
                       className="py-4 rounded-2xl font-black text-white bg-gradient-to-r from-red-600 to-rose-700 hover:from-red-500 hover:to-rose-600 text-base shadow-lg shadow-red-500/20 flex items-center justify-center space-x-2"
                     >
                       <XCircle className="w-6 h-6" />
-                      <span>❌ MARK WRONG (-{auction.winningBid || auction.currentBid} Bid)</span>
+                      <span>❌ MARK WRONG (-{auction.winningBid || auction.currentBid} PTS Bid)</span>
                     </button>
                   </div>
                 </div>
