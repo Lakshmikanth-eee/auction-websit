@@ -1,5 +1,7 @@
 import express from 'express';
 import http from 'http';
+import fs from 'fs';
+import path from 'path';
 import { Server } from 'socket.io';
 import cors from 'cors';
 import dotenv from 'dotenv';
@@ -154,16 +156,23 @@ io.on('connection', async (socket) => {
   });
 });
 
-// Auto-initialize DB schema and Seed data if DB tables/records are missing
+// Auto-initialize DB schema and Seed data ONLY if DB file/tables are missing
 async function ensureDatabaseInitialized() {
   try {
-    console.log('⚡ Ensuring SQLite database schema is synced...');
-    const { execSync } = require('child_process');
-    try {
-      execSync('npx prisma db push --accept-data-loss', { stdio: 'inherit' });
-      console.log('✅ SQLite database schema synced.');
-    } catch (e) {
-      console.error('Prisma db push note:', e);
+    const dbPath = path.resolve(__dirname, '../prisma/dev.db');
+    const dbExists = fs.existsSync(dbPath);
+
+    if (!dbExists) {
+      console.log('⚡ Initializing fresh SQLite database file dev.db...');
+      const { execSync } = require('child_process');
+      try {
+        execSync('npx prisma db push', { stdio: 'inherit' });
+        console.log('✅ SQLite database schema created.');
+      } catch (e) {
+        console.error('Prisma initialization note:', e);
+      }
+    } else {
+      console.log('💾 Existing SQLite database dev.db found. Preserving all registered teams and questions.');
     }
 
     // Ensure Default Settings exist
@@ -181,21 +190,21 @@ async function ensureDatabaseInitialized() {
           answerTimerDefault: 30,
         },
       }).catch(() => null);
-      console.log('✅ Default Event Settings initialized.');
+      console.log('✅ Default Event Settings verified.');
     }
 
     // Ensure Admin Account exists
     const adminUser = await prisma.admin.findFirst().catch(() => null);
     if (!adminUser) {
       const bcrypt = require('bcryptjs');
-      const hashedPassword = await bcrypt.hash('ELECTROBID2026', 10);
+      const hashedPassword = await bcrypt.hash('electrobid2026', 10);
       await prisma.admin.create({
         data: { username: 'admin', password: hashedPassword },
       }).catch(() => null);
-      console.log('✅ Default Admin created (admin / ELECTROBID2026).');
+      console.log('✅ Default Admin verified (admin / electrobid2026).');
     }
   } catch (err) {
-    console.error('Error auto-initializing database:', err);
+    console.error('Error verifying database:', err);
   }
 }
 
