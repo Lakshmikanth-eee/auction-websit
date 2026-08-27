@@ -1,6 +1,6 @@
 services:
   - type: web
-    name: electrobit-backend
+    name: ELECTROBID-backend
     env: node
     rootDir: backend
     buildCommand: yarn install && yarn build

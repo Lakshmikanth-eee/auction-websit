@@ -14,7 +14,7 @@ export const RulesPage: React.FC = () => {
             <ShieldCheck className="w-4 h-4 text-amber-400" />
             <span>OFFICIAL EVENT RULEBOOK</span>
           </div>
-          <h1 className="text-4xl sm:text-5xl font-black text-white">ELECTROBIT Rules & Guidelines</h1>
+          <h1 className="text-4xl sm:text-5xl font-black text-white">ELECTROBID Rules & Guidelines</h1>
           <p className="text-slate-400 text-base mt-2">
             The EEE Auction Challenge Rules governing Bidding, Scoring, Timers, and Tie-Breakers.
           </p>

@@ -4,10 +4,10 @@ import bcrypt from 'bcryptjs';
 const prisma = new PrismaClient();
 
 async function main() {
-  console.log('⚡ Starting ELECTROBIT database seeding...');
+  console.log('⚡ Starting ELECTROBID database seeding...');
 
   // 1. Admin setup
-  const adminPassword = process.env.ADMIN_DEFAULT_PASSWORD || 'electrobit2026';
+  const adminPassword = process.env.ADMIN_DEFAULT_PASSWORD || 'ELECTROBID2026';
   const hashedPassword = await bcrypt.hash(adminPassword, 10);
   const adminUsername = process.env.ADMIN_DEFAULT_USERNAME || 'admin';
 
@@ -27,7 +27,7 @@ async function main() {
     update: {},
     create: {
       id: 'default',
-      eventName: 'ELECTROBIT',
+      eventName: 'ELECTROBID',
       eventSubtitle: 'THE EEE AUCTION CHALLENGE',
       eventStatus: 'NOT_STARTED',
       startingPoints: 50000,
@@ -41,7 +41,7 @@ async function main() {
   // 3. Sample Teams
   const sampleTeams = [
     {
-      registrationNumber: 'EBIT-1001',
+      registrationNumber: 'EBID-1001',
       teamName: 'Circuit Kings',
       participant1Name: 'Arjun Sharma',
       participant2Name: 'Siddharth Rao',
@@ -53,7 +53,7 @@ async function main() {
       status: 'ACTIVE',
     },
     {
-      registrationNumber: 'EBIT-1002',
+      registrationNumber: 'EBID-1002',
       teamName: 'Power Warriors',
       participant1Name: 'Kavya Nair',
       participant2Name: 'Rohan Gupta',
@@ -65,7 +65,7 @@ async function main() {
       status: 'ACTIVE',
     },
     {
-      registrationNumber: 'EBIT-1003',
+      registrationNumber: 'EBID-1003',
       teamName: 'Electron Squad',
       participant1Name: 'Vikram Sundaram',
       participant2Name: 'Priya Venkatesh',
@@ -77,7 +77,7 @@ async function main() {
       status: 'ACTIVE',
     },
     {
-      registrationNumber: 'EBIT-1004',
+      registrationNumber: 'EBID-1004',
       teamName: 'Voltage Masters',
       participant1Name: 'Ananya Reddy',
       participant2Name: 'Karan Malhotra',
@@ -89,7 +89,7 @@ async function main() {
       status: 'ACTIVE',
     },
     {
-      registrationNumber: 'EBIT-1005',
+      registrationNumber: 'EBID-1005',
       teamName: 'Ohm Force',
       participant1Name: 'Devansh Verma',
       participant2Name: 'Sneha Patel',
@@ -293,7 +293,7 @@ async function main() {
   } else {
     console.log(`ℹ️ Questions already seeded (${existingQuestionsCount} questions in DB).`);
   }
-  console.log('⚡ ELECTROBIT database seeding completed successfully!');
+  console.log('⚡ ELECTROBID database seeding completed successfully!');
 }
 
 main()

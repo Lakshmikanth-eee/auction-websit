@@ -134,7 +134,7 @@ export const TeamLoginPage: React.FC = () => {
                     setIdentifier(e.target.value);
                     setError(null);
                   }}
-                  placeholder="e.g. Circuit Kings or EBIT-1001"
+                  placeholder="e.g. Circuit Kings or EBID-1001"
                   className="w-full bg-slate-900 border border-slate-700 focus:border-cyan-400 rounded-xl pl-11 pr-4 py-3.5 text-white text-sm focus:outline-none transition-all"
                 />
               </div>

@@ -45,7 +45,7 @@ export const AdminLoginPage: React.FC = () => {
             <Zap className="w-8 h-8 text-yellow-300 animate-pulse" />
           </div>
 
-          <h1 className="text-3xl font-black text-white tracking-wider">ELECTROBIT</h1>
+          <h1 className="text-3xl font-black text-white tracking-wider">ELECTROBID</h1>
           <p className="text-xs font-bold text-cyan-400 tracking-widest uppercase mt-1">
             CONTROL CENTER ADMIN LOGIN
           </p>

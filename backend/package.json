@@ -1,7 +1,7 @@
 {
-  "name": "electrobit-backend",
+  "name": "ELECTROBID-backend",
   "version": "1.0.0",
-  "description": "⚡ ELECTROBIT - THE EEE AUCTION CHALLENGE Backend API & WebSocket Server",
+  "description": "⚡ ELECTROBID - THE EEE AUCTION CHALLENGE Backend API & WebSocket Server",
   "main": "dist/server.js",
   "scripts": {
     "build": "npx prisma generate && tsc",

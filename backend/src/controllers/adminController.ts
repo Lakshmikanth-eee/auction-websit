@@ -19,8 +19,8 @@ export const adminLogin = async (req: Request, res: Response) => {
       where: { username: trimmedUsername },
     }).catch(() => null);
 
-    if (!admin && (trimmedUsername === 'admin' || trimmedUsername === 'admin@electrobit.com')) {
-      const defaultPassword = process.env.ADMIN_DEFAULT_PASSWORD || 'electrobit2026';
+    if (!admin && (trimmedUsername === 'admin' || trimmedUsername === 'admin@ELECTROBID.com')) {
+      const defaultPassword = process.env.ADMIN_DEFAULT_PASSWORD || 'ELECTROBID2026';
       const hashedPassword = await bcrypt.hash(defaultPassword, 10);
       try {
         admin = await prisma.admin.create({
@@ -40,8 +40,8 @@ export const adminLogin = async (req: Request, res: Response) => {
 
     let isMatch = await bcrypt.compare(password, admin.password);
 
-    // Fallback: allow 'electrobit2026' or 'admin' for default admin login
-    if (!isMatch && (password === 'electrobit2026' || password === 'admin')) {
+    // Fallback: allow 'ELECTROBID2026' or 'admin' for default admin login
+    if (!isMatch && (password === 'ELECTROBID2026' || password === 'admin')) {
       isMatch = true;
       const newHash = await bcrypt.hash(password, 10);
       await prisma.admin.update({
@@ -54,7 +54,7 @@ export const adminLogin = async (req: Request, res: Response) => {
       return res.status(401).json({ success: false, message: 'Invalid admin credentials.' });
     }
 
-    const secret = process.env.JWT_SECRET || 'electrobit_super_secure_jwt_secret_2026_key';
+    const secret = process.env.JWT_SECRET || 'ELECTROBID_super_secure_jwt_secret_2026_key';
     const token = jwt.sign(
       { id: admin.id, username: admin.username },
       secret,

@@ -21,7 +21,7 @@ export const Navbar: React.FC = () => {
             </div>
             <div>
               <div className="flex items-center space-x-1.5">
-                <span className="text-2xl font-black tracking-wider text-white">ELECTROBIT</span>
+                <span className="text-2xl font-black tracking-wider text-white">ELECTROBID</span>
               </div>
               <span className="block text-[10px] font-bold tracking-widest text-cyan-400 uppercase">
                 THE EEE AUCTION CHALLENGE

@@ -74,7 +74,7 @@ export const RegisterPage: React.FC = () => {
         <div className="text-center mb-8">
           <div className="inline-flex items-center space-x-2 px-3 py-1.5 rounded-full bg-cyan-500/10 border border-cyan-500/30 text-cyan-400 text-xs font-bold tracking-wider uppercase mb-3">
             <Zap className="w-4 h-4 text-yellow-400" />
-            <span>⚡ ELECTROBIT REGISTRATION</span>
+            <span>⚡ ELECTROBID REGISTRATION</span>
           </div>
           <h1 className="text-4xl font-extrabold text-white">Team Registration</h1>
           <p className="text-sm text-slate-400 mt-2">

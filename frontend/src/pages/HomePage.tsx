@@ -21,7 +21,7 @@ export const HomePage: React.FC = () => {
           </div>
 
           <h1 className="text-5xl sm:text-7xl font-black tracking-tight text-white mb-4">
-            ⚡ ELECTROBIT
+            ⚡ ELECTROBID
           </h1>
           <p className="text-2xl sm:text-4xl font-extrabold tracking-wider text-cyan-400 uppercase mb-6">
             THE EEE AUCTION CHALLENGE
@@ -68,20 +68,20 @@ export const HomePage: React.FC = () => {
         </div>
       </section>
 
-      {/* ABOUT ELECTROBIT */}
+      {/* ABOUT ELECTROBID */}
       <section className="py-16 bg-[#0d1322] border-y border-cyan-500/10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
             <div>
               <div className="flex items-center space-x-2 text-cyan-400 font-bold text-sm tracking-wider uppercase mb-2">
                 <Cpu className="w-5 h-5" />
-                <span>ABOUT ELECTROBIT</span>
+                <span>ABOUT ELECTROBID</span>
               </div>
               <h2 className="text-3xl sm:text-4xl font-extrabold text-white mb-6">
                 High-Voltage Technical Bidding Competition
               </h2>
               <p className="text-slate-300 text-lg leading-relaxed mb-4">
-                <strong className="text-cyan-400">ELECTROBIT</strong> is the ultimate Electrical & Electronics Engineering challenge combining deep domain knowledge with high-stakes auction strategy.
+                <strong className="text-cyan-400">ELECTROBID</strong> is the ultimate Electrical & Electronics Engineering challenge combining deep domain knowledge with high-stakes auction strategy.
               </p>
               <p className="text-slate-400 text-base leading-relaxed mb-6">
                 Every registered team starts with <strong className="text-yellow-400">10,000 starting points</strong>. Teams bid live in real-time against each other for high-value technical questions. Winning the auction deducts your bid amount from your balance, while answering correctly earns the question's base points!
@@ -175,7 +175,7 @@ export const HomePage: React.FC = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
             <span className="text-yellow-400 font-bold text-xs tracking-widest uppercase">STEP-BY-STEP PROCESS</span>
-            <h2 className="text-3xl sm:text-4xl font-extrabold text-white mt-2">How Electrobit Works</h2>
+            <h2 className="text-3xl sm:text-4xl font-extrabold text-white mt-2">How ELECTROBID Works</h2>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-4 gap-6">

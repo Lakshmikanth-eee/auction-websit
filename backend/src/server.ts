@@ -68,7 +68,7 @@ app.get('*', (req, res, next) => {
 app.get('/health', (_req, res) => {
   res.json({
     status: 'HEALTHY',
-    application: '⚡ ELECTROBIT - THE EEE AUCTION CHALLENGE API',
+    application: '⚡ ELECTROBID - THE EEE AUCTION CHALLENGE API',
     timestamp: new Date().toISOString(),
   });
 });
@@ -172,7 +172,7 @@ async function ensureDatabaseInitialized() {
       await prisma.eventSettings.create({
         data: {
           id: 'default',
-          eventName: 'ELECTROBIT',
+          eventName: 'ELECTROBID',
           eventSubtitle: 'THE EEE AUCTION CHALLENGE',
           eventStatus: 'NOT_STARTED',
           startingPoints: 50000,
@@ -188,11 +188,11 @@ async function ensureDatabaseInitialized() {
     const adminUser = await prisma.admin.findFirst().catch(() => null);
     if (!adminUser) {
       const bcrypt = require('bcryptjs');
-      const hashedPassword = await bcrypt.hash('electrobit2026', 10);
+      const hashedPassword = await bcrypt.hash('ELECTROBID2026', 10);
       await prisma.admin.create({
         data: { username: 'admin', password: hashedPassword },
       }).catch(() => null);
-      console.log('✅ Default Admin created (admin / electrobit2026).');
+      console.log('✅ Default Admin created (admin / ELECTROBID2026).');
     }
   } catch (err) {
     console.error('Error auto-initializing database:', err);
@@ -204,7 +204,7 @@ ensureDatabaseInitialized().then(() => {
   server.listen(PORT, () => {
     console.log(`
 ==================================================
-⚡ ELECTROBIT - THE EEE AUCTION CHALLENGE SERVER
+⚡ ELECTROBID - THE EEE AUCTION CHALLENGE SERVER
 ==================================================
 🚀 Server running on port: ${PORT}
 🌐 API Base URL: http://localhost:${PORT}/api

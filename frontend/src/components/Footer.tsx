@@ -11,7 +11,7 @@ export const Footer: React.FC = () => {
               <Zap className="w-5 h-5 text-yellow-400" />
             </div>
             <div>
-              <span className="text-lg font-extrabold text-white tracking-wider">ELECTROBIT</span>
+              <span className="text-lg font-extrabold text-white tracking-wider">ELECTROBID</span>
               <span className="block text-xs font-semibold text-cyan-400 tracking-widest">
                 THE EEE AUCTION CHALLENGE
               </span>
@@ -21,7 +21,7 @@ export const Footer: React.FC = () => {
           <div className="text-center md:text-right text-xs text-slate-500 space-y-1">
             <p>Department of Electrical & Electronics Engineering</p>
             <p>"Bid Smart. Answer Fast. Win Big."</p>
-            <p className="pt-2 text-slate-600">© 2026 ELECTROBIT. All Rights Reserved. Admin-Controlled Event.</p>
+            <p className="pt-2 text-slate-600">© 2026 ELECTROBID. All Rights Reserved. Admin-Controlled Event.</p>
           </div>
         </div>
       </div>

@@ -14,7 +14,7 @@ export const socket: Socket = io(SOCKET_URL, {
 });
 
 socket.on('connect', () => {
-  console.log('⚡ Connected to ELECTROBIT Socket.IO server:', socket.id);
+  console.log('⚡ Connected to ELECTROBID Socket.IO server:', socket.id);
 });
 
 socket.on('disconnect', (reason) => {

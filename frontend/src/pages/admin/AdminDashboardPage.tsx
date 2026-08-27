@@ -96,7 +96,7 @@ export const AdminDashboardPage: React.FC = () => {
           <div>
             <h1 className="text-3xl font-black text-white flex items-center space-x-3">
               <Zap className="w-8 h-8 text-yellow-400" />
-              <span>ELECTROBIT Central Control Panel</span>
+              <span>ELECTROBID Central Control Panel</span>
             </h1>
             <p className="text-xs text-slate-400 mt-1">
               Live monitoring, auction state management, team management, and projector controls.

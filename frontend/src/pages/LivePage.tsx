@@ -344,7 +344,7 @@ export const LivePage: React.FC = () => {
               <Zap className="w-10 h-10 text-yellow-300 animate-pulse" />
             </div>
             <div>
-              <h1 className="text-4xl font-black tracking-wider text-white">ELECTROBIT</h1>
+              <h1 className="text-4xl font-black tracking-wider text-white">ELECTROBID</h1>
               <span className="text-xs font-bold text-cyan-400 tracking-widest uppercase">THE EEE AUCTION CHALLENGE</span>
             </div>
           </div>
@@ -357,7 +357,7 @@ export const LivePage: React.FC = () => {
         <div className="my-8 text-center">
           <div className="inline-flex items-center space-x-2 px-6 py-2 rounded-full bg-yellow-400 text-black font-black text-lg tracking-wider mb-4 shadow-xl shadow-yellow-500/30">
             <Crown className="w-6 h-6" />
-            <span>ELECTROBIT CHAMPION</span>
+            <span>ELECTROBID CHAMPION</span>
           </div>
 
           <h2 className="text-6xl sm:text-7xl font-black text-white tracking-tight my-2">
@@ -398,7 +398,10 @@ export const LivePage: React.FC = () => {
 
   // ACTIVE AUCTION PROJECTOR DISPLAY
   const status = auction?.status || 'WAITING';
-  const myPlacedBid = auction?.bids?.find((b: any) => (b.teamId === teamInfo?.id || b.team?.id === teamInfo?.id));
+  const myTeamBids = auction?.bids?.filter((b: any) => String(b.teamId || b.team?.id) === String(teamInfo?.id)) || [];
+  const myPlacedBid = myTeamBids.length > 0
+    ? myTeamBids.reduce((latest: any, b: any) => (b.amount > latest.amount ? b : latest), myTeamBids[0])
+    : null;
   const hasAlreadyBid = Boolean(myPlacedBid);
 
   return (
@@ -413,7 +416,7 @@ export const LivePage: React.FC = () => {
             <Zap className="w-10 h-10 text-yellow-300 animate-pulse" />
           </div>
           <div>
-            <h1 className="text-4xl sm:text-5xl font-black tracking-wider text-white">ELECTROBIT</h1>
+            <h1 className="text-4xl sm:text-5xl font-black tracking-wider text-white">ELECTROBID</h1>
             <span className="text-xs font-bold text-cyan-400 tracking-widest uppercase">THE EEE AUCTION CHALLENGE</span>
           </div>
         </div>
@@ -817,7 +820,7 @@ export const LivePage: React.FC = () => {
 
       {/* FOOTER TICKER WITH COMFORTABLE MARGIN */}
       <div className="pt-6 pb-4 border-t border-slate-800/80 flex items-center justify-between text-xs text-slate-400 relative z-10 mt-8 mb-4">
-        <span>⚡ ELECTROBIT 2026 | Admin-Controlled Bidding System</span>
+        <span>⚡ ELECTROBID 2026 | Admin-Controlled Bidding System</span>
         <span>College EEE Flagship Symposium</span>
       </div>
 

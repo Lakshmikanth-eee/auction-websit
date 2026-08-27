@@ -6,7 +6,7 @@ import { Settings, Zap, Printer, CheckCircle2, ShieldCheck, Play, Pause, Award }
 
 export const AdminSettingsPage: React.FC = () => {
   const [settings, setSettings] = useState<any>({
-    eventName: 'ELECTROBIT',
+    eventName: 'ELECTROBID',
     eventSubtitle: 'THE EEE AUCTION CHALLENGE',
     eventStatus: 'NOT_STARTED',
     startingPoints: 5000,

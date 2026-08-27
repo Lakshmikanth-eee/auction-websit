@@ -97,7 +97,7 @@ model ScoreTransaction {
 
 model EventSettings {
   id                  String  @id @default("default")
-  eventName           String  @default("ELECTROBIT")
+  eventName           String  @default("ELECTROBID")
   eventSubtitle        String  @default("THE EEE AUCTION CHALLENGE")
   currentAuctionId    String?
   eventStatus         String  @default("NOT_STARTED") // NOT_STARTED, IN_PROGRESS, PAUSED, COMPLETED

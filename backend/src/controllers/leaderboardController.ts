@@ -131,7 +131,7 @@ export const getAuctionHistory = async (req: AuthRequest, res: Response) => {
 
 const defaultSettingsObj = {
   id: 'default',
-  eventName: 'ELECTROBIT',
+  eventName: 'ELECTROBID',
   eventSubtitle: 'THE EEE AUCTION CHALLENGE',
   eventStatus: 'NOT_STARTED',
   startingPoints: 50000,
@@ -173,7 +173,7 @@ export const updateEventSettings = async (req: AuthRequest, res: Response) => {
       },
       create: {
         id: 'default',
-        eventName: 'ELECTROBIT',
+        eventName: 'ELECTROBID',
         eventSubtitle: 'THE EEE AUCTION CHALLENGE',
         eventStatus: eventStatus || 'NOT_STARTED',
         nonBiddingPenalty: nonBiddingPenalty ? Number(nonBiddingPenalty) : 0,

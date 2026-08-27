@@ -12,10 +12,10 @@ export const setSocketIO = (io: Server) => {
 async function generateRegistrationNumber(): Promise<string> {
   const count = await prisma.team.count();
   const num = 1001 + count;
-  let regNum = `EBIT-${num}`;
+  let regNum = `EBID-${num}`;
   const existing = await prisma.team.findUnique({ where: { registrationNumber: regNum } });
   if (existing) {
-    regNum = `EBIT-${Date.now().toString().slice(-4)}`;
+    regNum = `EBID-${Date.now().toString().slice(-4)}`;
   }
   return regNum;
 }
@@ -57,7 +57,7 @@ export const registerTeam = async (req: Request, res: Response) => {
         collegeName: collegeName.trim(),
         department: department.trim(),
         phone: phone ? phone.trim() : '',
-        email: email && email.trim() ? email.trim() : `${trimmedTeamName.toLowerCase().replace(/\s+/g, '')}@electrobit.com`,
+        email: email && email.trim() ? email.trim() : `${trimmedTeamName.toLowerCase().replace(/\s+/g, '')}@ELECTROBID.com`,
         points: 50000,
         status: 'ACTIVE',
       },

@@ -47,7 +47,7 @@ export const AdminLayout: React.FC<{ children: React.ReactNode }> = ({ children 
       <div className="md:hidden flex items-center justify-between px-4 py-3 bg-[#0d1322] border-b border-cyan-500/20 sticky top-0 z-40">
         <div className="flex items-center space-x-2">
           <Zap className="w-6 h-6 text-yellow-400" />
-          <span className="font-extrabold text-white">ELECTROBIT ADMIN</span>
+          <span className="font-extrabold text-white">ELECTROBID ADMIN</span>
         </div>
         <button onClick={() => setMobileOpen(!mobileOpen)} className="p-2 text-slate-400 hover:text-white">
           {mobileOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
@@ -67,7 +67,7 @@ export const AdminLayout: React.FC<{ children: React.ReactNode }> = ({ children 
               <Zap className="w-6 h-6 text-yellow-300 animate-pulse" />
             </div>
             <div>
-              <span className="font-black text-lg text-white tracking-wider">ELECTROBIT</span>
+              <span className="font-black text-lg text-white tracking-wider">ELECTROBID</span>
               <span className="block text-[10px] font-extrabold text-cyan-400 tracking-widest uppercase">
                 CONTROL CENTER
               </span>

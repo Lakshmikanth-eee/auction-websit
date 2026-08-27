@@ -23,7 +23,7 @@ export const authenticateAdmin = (req: AuthRequest, res: Response, next: NextFun
       return res.status(401).json({ success: false, message: 'Admin authentication required.' });
     }
 
-    const secret = process.env.JWT_SECRET || 'electrobit_super_secure_jwt_secret_2026_key';
+    const secret = process.env.JWT_SECRET || 'ELECTROBID_super_secure_jwt_secret_2026_key';
     const decoded = jwt.verify(token, secret) as { id: string; username: string };
 
     req.admin = decoded;

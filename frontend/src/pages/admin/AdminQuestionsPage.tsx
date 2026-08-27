@@ -236,7 +236,7 @@ export const AdminQuestionsPage: React.FC = () => {
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href = url;
-    link.setAttribute('download', 'electrobit_questions_template.csv');
+    link.setAttribute('download', 'ELECTROBID_questions_template.csv');
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -276,7 +276,7 @@ export const AdminQuestionsPage: React.FC = () => {
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href = url;
-    link.setAttribute('download', 'electrobit_questions_template.json');
+    link.setAttribute('download', 'ELECTROBID_questions_template.json');
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
