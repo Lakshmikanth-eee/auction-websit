@@ -73,6 +73,7 @@ export const registerTeam = async (req: Request, res: Response) => {
       success: true,
       message: 'Registration Successful!',
       team: {
+        id: team.id,
         registrationNumber: team.registrationNumber,
         teamName: team.teamName,
         participant1Name: team.participant1Name,
@@ -80,6 +81,7 @@ export const registerTeam = async (req: Request, res: Response) => {
         collegeName: team.collegeName,
         department: team.department,
         points: team.points,
+        status: team.status,
       },
     });
   } catch (error: any) {

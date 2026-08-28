@@ -71,7 +71,11 @@ export const LivePage: React.FC = () => {
         if (storedStr) {
           try {
             const parsed = JSON.parse(storedStr);
-            const matchingTeam = teamsRes.teams.find((t: any) => String(t.id) === String(parsed.id));
+            const matchingTeam = teamsRes.teams.find((t: any) =>
+              (parsed.id && String(t.id) === String(parsed.id)) ||
+              (parsed.registrationNumber && String(t.registrationNumber) === String(parsed.registrationNumber)) ||
+              (parsed.teamName && String(t.teamName).trim().toLowerCase() === String(parsed.teamName).trim().toLowerCase())
+            );
             if (matchingTeam) {
               setTeamInfo(matchingTeam);
               localStorage.setItem('team_info', JSON.stringify(matchingTeam));
