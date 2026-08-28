@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { AdminLayout } from '../../components/AdminLayout';
 import { fetchAPI } from '../../services/api';
+import * as XLSX from 'xlsx';
 import {
   HelpCircle,
   Plus,
@@ -223,6 +224,49 @@ export const AdminQuestionsPage: React.FC = () => {
     }
   };
 
+  // Download Excel Question Template (.xlsx)
+  const handleDownloadExcelTemplate = () => {
+    const sampleQuestions = [
+      {
+        "questionText": "In a DC machine, what is the purpose of compensating windings placed in the pole shoes?",
+        "correctAnswer": "Neutralize armature reaction under pole shoes",
+        "difficulty": "HARD",
+        "basePoints": 500,
+        "timeLimit": 30,
+        "category": "Electrical Machines"
+      },
+      {
+        "questionText": "What is the SI unit of magnetic flux density?",
+        "correctAnswer": "Tesla",
+        "difficulty": "EASY",
+        "basePoints": 100,
+        "timeLimit": 30,
+        "category": "Electromagnetics"
+      },
+      {
+        "questionText": "In a 3-phase induction motor, slip at starting is equal to?",
+        "correctAnswer": "1",
+        "difficulty": "MEDIUM",
+        "basePoints": 300,
+        "timeLimit": 30,
+        "category": "Electrical Machines"
+      },
+      {
+        "questionText": "What device measures high speed electrical transients in power systems?",
+        "correctAnswer": "Oscilloscope / Power Quality Analyzer",
+        "difficulty": "SUPER_CHALLENGE",
+        "basePoints": 1000,
+        "timeLimit": 30,
+        "category": "Power Electronics"
+      }
+    ];
+
+    const worksheet = XLSX.utils.json_to_sheet(sampleQuestions);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Questions");
+    XLSX.writeFile(workbook, "ELECTROBID_questions_template.xlsx");
+  };
+
   // Download CSV Question Template
   const handleDownloadCSVTemplate = () => {
     const csvContent =
@@ -257,7 +301,7 @@ export const AdminQuestionsPage: React.FC = () => {
         questionText: "What is the SI unit of magnetic flux density?",
         correctAnswer: "Tesla",
         difficulty: "EASY",
- basePoints: 100,
+        basePoints: 100,
         timeLimit: 30,
         category: "Electromagnetics"
       },
@@ -282,67 +326,20 @@ export const AdminQuestionsPage: React.FC = () => {
     document.body.removeChild(link);
   };
 
-  // CSV Text Parser Helper
-  const parseCSVText = (csvText: string) => {
-    const lines = csvText.split(/\r?\n/).filter((line) => line.trim() !== '');
-    if (lines.length < 2) return [];
-
-    const headers = lines[0].split(',').map((h) => h.trim().replace(/^["']|["']$/g, ''));
-    const questionsList: any[] = [];
-
-    for (let i = 1; i < lines.length; i++) {
-      const line = lines[i];
-      // Regex to parse comma-separated fields while preserving quoted strings
-      const values = line.match(/(".*?"|[^",\s]+)(?=\s*,|\s*$)/g) || line.split(',');
-      if (!values || values.length === 0) continue;
-
-      const cleanValues = values.map((v) => v.trim().replace(/^["']|["']$/g, '').replace(/""/g, '"'));
-      const obj: any = {};
-
-      headers.forEach((h, idx) => {
-        const val = cleanValues[idx] || '';
-        const keyLower = h.toLowerCase();
-
-        if (keyLower.includes('text') || keyLower === 'question') {
-          obj.questionText = val;
-        } else if (keyLower.includes('answer') || keyLower === 'correctanswer') {
-          obj.correctAnswer = val;
-        } else if (keyLower.includes('diff') || keyLower === 'difficulty') {
-          obj.difficulty = val.toUpperCase();
-        } else if (keyLower.includes('point') || keyLower === 'basepoints') {
-          obj.basePoints = Number(val) || 100;
-        } else if (keyLower.includes('time') || keyLower === 'timelimit') {
-          obj.timeLimit = Number(val) || 30;
-        } else if (keyLower.includes('cat') || keyLower === 'category') {
-          obj.category = val;
-        }
-      });
-
-      if (obj.questionText && obj.correctAnswer) {
-        if (!obj.difficulty) obj.difficulty = 'EASY';
-        if (!obj.basePoints) obj.basePoints = 100;
-        if (!obj.category) obj.category = 'General EEE';
-        questionsList.push(obj);
-      }
-    }
-
-    return questionsList;
-  };
-
-  // Handle File Selected (.csv or .json)
+  // Handle File Selected (Excel .xlsx / .xls / .csv / .json / .txt)
   const handleFileSelected = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
     setUploadedFileName(file.name);
-    const reader = new FileReader();
+    const lowerName = file.name.toLowerCase();
 
-    reader.onload = (event) => {
-      const text = event.target?.result as string;
-      if (!text) return;
-
-      if (file.name.endsWith('.json') || text.trim().startsWith('[') || text.trim().startsWith('{')) {
+    // 1. JSON File Parsing
+    if (lowerName.endsWith('.json')) {
+      const reader = new FileReader();
+      reader.onload = (event) => {
         try {
+          const text = event.target?.result as string;
           const parsed = JSON.parse(text);
           const qList = Array.isArray(parsed) ? parsed : [parsed];
           setParsedQuestions(qList);
@@ -351,19 +348,72 @@ export const AdminQuestionsPage: React.FC = () => {
         } catch (err) {
           setMessage({ type: 'error', text: 'Invalid JSON file format.' });
         }
-      } else {
-        const qList = parseCSVText(text);
+      };
+      reader.readAsText(file);
+      return;
+    }
+
+    // 2. Excel (.xlsx, .xls, .xlsm, .xlsb) & CSV / Text Parsing using SheetJS
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      try {
+        const buffer = event.target?.result as ArrayBuffer;
+        const data = new Uint8Array(buffer);
+        const workbook = XLSX.read(data, { type: 'array' });
+        const firstSheetName = workbook.SheetNames[0];
+        const worksheet = workbook.Sheets[firstSheetName];
+        const rawJson: any[] = XLSX.utils.sheet_to_json(worksheet, { defval: '' });
+
+        if (rawJson.length === 0) {
+          setMessage({ type: 'error', text: 'The uploaded file contains no data.' });
+          return;
+        }
+
+        const qList: any[] = [];
+        rawJson.forEach((row) => {
+          const obj: any = {};
+          Object.keys(row).forEach((colName) => {
+            const keyLower = colName.toLowerCase().replace(/[^a-z0-9]/g, '');
+            const val = String(row[colName] || '').trim();
+
+            if (keyLower.includes('question') || keyLower === 'q' || keyLower.includes('text')) {
+              obj.questionText = val;
+            } else if (keyLower.includes('answer') || keyLower === 'a' || keyLower.includes('correct')) {
+              obj.correctAnswer = val;
+            } else if (keyLower.includes('diff')) {
+              obj.difficulty = val.toUpperCase();
+            } else if (keyLower.includes('point') || keyLower.includes('base') || keyLower === 'score') {
+              obj.basePoints = Number(val) || 100;
+            } else if (keyLower.includes('time') || keyLower.includes('limit')) {
+              obj.timeLimit = Number(val) || 30;
+            } else if (keyLower.includes('cat') || keyLower.includes('topic')) {
+              obj.category = val;
+            }
+          });
+
+          if (obj.questionText && obj.correctAnswer) {
+            if (!obj.difficulty) obj.difficulty = 'EASY';
+            if (!obj.basePoints) obj.basePoints = 100;
+            if (!obj.timeLimit) obj.timeLimit = 30;
+            if (!obj.category) obj.category = 'General EEE';
+            qList.push(obj);
+          }
+        });
+
         if (qList.length > 0) {
           setParsedQuestions(qList);
           setBulkJsonText(JSON.stringify(qList, null, 2));
-          setMessage({ type: 'success', text: `Loaded ${qList.length} questions from CSV file "${file.name}"!` });
+          setMessage({ type: 'success', text: `Loaded ${qList.length} questions from Excel file "${file.name}"!` });
         } else {
-          setMessage({ type: 'error', text: 'Could not parse CSV file. Please use the downloaded template.' });
+          setMessage({ type: 'error', text: 'Could not extract questions. Please ensure column headers include Question Text and Correct Answer.' });
         }
+      } catch (err: any) {
+        console.error('Excel parse error:', err);
+        setMessage({ type: 'error', text: 'Error reading file. Please ensure it is a valid .xlsx, .xls, or .csv file.' });
       }
     };
 
-    reader.readAsText(file);
+    reader.readAsArrayBuffer(file);
   };
 
   // Bulk Upload Submit
@@ -862,6 +912,14 @@ export const AdminQuestionsPage: React.FC = () => {
                 <div className="flex flex-wrap gap-2.5">
                   <button
                     type="button"
+                    onClick={handleDownloadExcelTemplate}
+                    className="px-4 py-2.5 rounded-xl font-bold text-xs bg-emerald-500/10 border border-emerald-500/40 text-emerald-300 hover:bg-emerald-500/20 flex items-center space-x-2 transition-all shadow-md"
+                  >
+                    <Download className="w-4 h-4 text-emerald-400" />
+                    <span>Download Excel Template (.xlsx)</span>
+                  </button>
+                  <button
+                    type="button"
                     onClick={handleDownloadCSVTemplate}
                     className="px-4 py-2.5 rounded-xl font-bold text-xs bg-cyan-500/10 border border-cyan-500/40 text-cyan-300 hover:bg-cyan-500/20 flex items-center space-x-2 transition-all shadow-md"
                   >
@@ -883,16 +941,16 @@ export const AdminQuestionsPage: React.FC = () => {
               <form onSubmit={handleBulkUploadSubmit} className="space-y-4 text-xs">
                 <div className="space-y-2">
                   <span className="text-xs font-bold text-slate-300 uppercase tracking-wider block">
-                    📁 Step 2: Upload CSV or JSON File
+                    📁 Step 2: Upload Excel, CSV or JSON File
                   </span>
 
                   <label className="border-2 border-dashed border-slate-700 hover:border-cyan-400 rounded-2xl p-6 flex flex-col items-center justify-center cursor-pointer bg-slate-950/60 transition-all">
                     <Upload className="w-8 h-8 text-cyan-400 mb-2 animate-bounce" />
-                    <span className="text-sm font-bold text-white">Click to Select CSV / JSON File</span>
-                    <span className="text-[11px] text-slate-400 mt-1">Supports .csv or .json files</span>
+                    <span className="text-sm font-bold text-white">Click to Select Excel / CSV / JSON File</span>
+                    <span className="text-[11px] text-slate-400 mt-1">Supports .xlsx, .xls, .csv, or .json files</span>
                     <input
                       type="file"
-                      accept=".csv,.json,.txt"
+                      accept=".xlsx,.xls,.xlsm,.xlsb,.csv,.json,.txt"
                       onChange={handleFileSelected}
                       className="hidden"
                     />
