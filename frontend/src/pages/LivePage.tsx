@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { fetchAPI } from '../services/api';
 import { socket } from '../services/socket';
 import confetti from 'canvas-confetti';
-import { Zap, Trophy, Timer, Crown, CheckCircle2, XCircle, Award, Flame, AlertCircle, LogIn } from 'lucide-react';
+import { Zap, Trophy, Timer, Crown, CheckCircle2, XCircle, Award, Flame, AlertCircle, LogIn, Sparkles } from 'lucide-react';
 
 interface Question {
   id: string;
@@ -138,6 +138,33 @@ export const LivePage: React.FC = () => {
   const [teamInfo, setTeamInfo] = useState<any>(null);
   const [teamBidInput, setTeamBidInput] = useState<string>('');
   const [bidMessage, setBidMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
+
+  const [showTurnPopup, setShowTurnPopup] = useState<boolean>(true);
+  const [hasNotifiedTurn, setHasNotifiedTurn] = useState<string>('');
+
+  const currentAuctionStatus = auction?.status || 'IDLE';
+
+  const isHighestBidderMe = Boolean(
+    teamInfo?.id &&
+    ((highestBidder?.id && String(highestBidder.id) === String(teamInfo.id)) ||
+      (auction?.highestBidderTeamId && String(auction.highestBidderTeamId) === String(teamInfo.id)) ||
+      (winningTeam?.id && String(winningTeam.id) === String(teamInfo.id)) ||
+      (auction?.winningTeamId && String(auction.winningTeamId) === String(teamInfo.id)))
+  );
+
+  const isTurnToAnswerStatus = ['WINNER_CONFIRMED', 'ANSWER_IN_PROGRESS', 'BIDDING_CLOSED'].includes(currentAuctionStatus);
+  const isMyTurnToAnswer = Boolean(isHighestBidderMe && isTurnToAnswerStatus);
+
+  useEffect(() => {
+    if (isMyTurnToAnswer && auction?.id) {
+      const turnKey = `${auction.id}_${currentAuctionStatus}_${teamInfo?.id}`;
+      if (hasNotifiedTurn !== turnKey) {
+        setShowTurnPopup(true);
+        setHasNotifiedTurn(turnKey);
+        confetti({ particleCount: 130, spread: 90, origin: { y: 0.5 } });
+      }
+    }
+  }, [isMyTurnToAnswer, auction?.id, currentAuctionStatus, teamInfo?.id]);
 
   const handlePlaceTeamBid = async (targetAmount?: number) => {
     let currentTeam = teamInfo;
@@ -502,6 +529,76 @@ export const LivePage: React.FC = () => {
           )}
         </div>
       </div>
+
+      {/* PROMINENT HIGH BIDDER TURN TO ANSWER BANNER */}
+      {isMyTurnToAnswer && (
+        <div className="my-3 p-4 rounded-2xl bg-gradient-to-r from-yellow-500/20 via-amber-500/30 to-yellow-500/20 border-2 border-yellow-400 text-yellow-200 shadow-2xl flex flex-col sm:flex-row items-center justify-between gap-3 animate-pulse glow-yellow relative z-20">
+          <div className="flex items-center space-x-3">
+            <div className="p-2.5 bg-yellow-400 text-black rounded-xl font-black shadow-lg">
+              <Sparkles className="w-6 h-6 animate-spin" />
+            </div>
+            <div>
+              <span className="text-[10px] font-black tracking-widest text-yellow-400 uppercase block">⚡ HIGH BIDDER EVALUATION</span>
+              <span className="text-base sm:text-lg font-black text-white">IT'S YOUR TURN TO ANSWER THE QUESTION!</span>
+            </div>
+          </div>
+
+          <button
+            onClick={() => setShowTurnPopup(true)}
+            className="px-5 py-2.5 rounded-xl font-extrabold text-black text-xs bg-yellow-400 hover:bg-yellow-300 shadow-xl uppercase tracking-wider transition-all cursor-pointer flex items-center space-x-1.5"
+          >
+            <Sparkles className="w-4 h-4" />
+            <span>VIEW POPUP DETAILS</span>
+          </button>
+        </div>
+      )}
+
+      {/* HIGH BIDDER TURN TO ANSWER POPUP MODAL */}
+      {isMyTurnToAnswer && showTurnPopup && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-md animate-fade-in">
+          <div className="max-w-lg w-full bg-[#0d1424] border-4 border-yellow-400 rounded-3xl p-8 shadow-2xl shadow-yellow-500/30 text-center relative glow-yellow">
+            <button
+              onClick={() => setShowTurnPopup(false)}
+              className="absolute top-4 right-4 text-slate-400 hover:text-white p-2 rounded-full bg-slate-800/80 hover:bg-slate-700 transition-all cursor-pointer"
+            >
+              <XCircle className="w-6 h-6" />
+            </button>
+
+            <div className="w-20 h-20 bg-gradient-to-br from-yellow-400 to-amber-500 rounded-3xl flex items-center justify-center mx-auto mb-5 text-black shadow-2xl shadow-yellow-400/40 animate-bounce">
+              <Sparkles className="w-12 h-12 fill-black" />
+            </div>
+
+            <span className="px-4 py-1.5 rounded-full bg-yellow-400/20 border border-yellow-400 text-yellow-300 text-xs font-black tracking-widest uppercase mb-3 inline-block animate-pulse">
+              ⚡ HIGHEST BIDDER SELECTION
+            </span>
+
+            <h2 className="text-3xl sm:text-4xl font-black text-white tracking-tight mb-2">
+              IT'S YOUR TURN TO ANSWER!
+            </h2>
+
+            <p className="text-sm text-slate-300 mb-6">
+              Congratulations <strong className="text-yellow-400 font-extrabold">{teamInfo?.teamName}</strong>! You placed the winning high bid of{' '}
+              <span className="text-cyan-400 font-black font-mono">{auction?.winningBid || auction?.currentBid || 0} PTS</span>.
+            </p>
+
+            {auction?.question && (
+              <div className="p-4 bg-slate-900/90 rounded-2xl border border-yellow-400/40 mb-6 text-left space-y-2">
+                <span className="text-[10px] text-slate-400 font-extrabold uppercase block">QUESTION TO ANSWER:</span>
+                <p className="text-base font-bold text-white leading-snug">
+                  "{auction.question.questionText}"
+                </p>
+              </div>
+            )}
+
+            <button
+              onClick={() => setShowTurnPopup(false)}
+              className="w-full py-4 rounded-xl font-black text-black text-base bg-gradient-to-r from-yellow-400 via-amber-300 to-yellow-500 hover:from-yellow-300 hover:to-amber-200 shadow-xl shadow-yellow-500/30 transition-all uppercase tracking-wider cursor-pointer"
+            >
+              I AM READY TO ANSWER
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* TEAM STATUS BAR (AUTHENTICATED INDIVIDUAL TEAM SESSION) */}
       <div className="bg-[#0d1424]/90 border border-cyan-500/30 rounded-2xl px-6 py-3.5 my-2 flex flex-col sm:flex-row justify-between items-center text-xs shadow-xl relative z-20 gap-3">
