@@ -68,14 +68,31 @@ export const LivePage: React.FC = () => {
       if (teamsRes.success && teamsRes.teams) {
         setTeamsList(teamsRes.teams);
         const storedStr = localStorage.getItem('team_info');
-        if (!storedStr && teamsRes.teams.length > 0) {
-          const defaultTeam = teamsRes.teams[0];
-          setTeamInfo(defaultTeam);
-          localStorage.setItem('team_info', JSON.stringify(defaultTeam));
+        if (storedStr) {
+          try {
+            const parsed = JSON.parse(storedStr);
+            const matchingTeam = teamsRes.teams.find((t: any) => String(t.id) === String(parsed.id));
+            if (matchingTeam) {
+              setTeamInfo(matchingTeam);
+              localStorage.setItem('team_info', JSON.stringify(matchingTeam));
+            }
+          } catch (e) {}
         }
       }
     } catch (err) {
       console.error('Error fetching live screen state:', err);
+    }
+  };
+
+  const handleSelectTeam = (selectedTeam: any) => {
+    setTeamInfo(selectedTeam);
+    localStorage.setItem('team_info', JSON.stringify(selectedTeam));
+    if (selectedTeam?.id) {
+      socket.emit('join_auction_room', {
+        teamId: selectedTeam.id,
+        teamName: selectedTeam.teamName,
+        registrationNumber: selectedTeam.registrationNumber,
+      });
     }
   };
 
@@ -113,22 +130,10 @@ export const LivePage: React.FC = () => {
       }
     }
 
-    // Auto-select first registered team if no team session exists
-    if (!currentTeam?.id && teamsList.length > 0) {
-      currentTeam = teamsList[0];
-      setTeamInfo(currentTeam);
-      localStorage.setItem('team_info', JSON.stringify(currentTeam));
-      socket.emit('join_auction_room', {
-        teamId: currentTeam.id,
-        teamName: currentTeam.teamName,
-        registrationNumber: currentTeam.registrationNumber,
-      });
-    }
-
     if (!currentTeam?.id) {
       setBidMessage({
         type: 'error',
-        text: 'No registered team found. Please register a team first to place bids.',
+        text: 'Please select your registered team above to place bids.',
       });
       return;
     }
@@ -463,18 +468,64 @@ export const LivePage: React.FC = () => {
         </div>
       </div>
 
-      {/* TEAM STATUS BAR (IF TEAM LOGGED IN) */}
-      {teamInfo && (
-        <div className="bg-[#0d1424]/90 border border-cyan-500/30 rounded-2xl px-6 py-3.5 my-2 flex flex-col sm:flex-row justify-between items-center text-xs shadow-xl relative z-20 gap-3">
+      {/* TEAM STATUS BAR (INDIVIDUAL TEAM LOGIN & SWITCHER) */}
+      <div className="bg-[#0d1424]/90 border border-cyan-500/30 rounded-2xl px-6 py-3.5 my-2 flex flex-col sm:flex-row justify-between items-center text-xs shadow-xl relative z-20 gap-3">
+        {teamInfo ? (
           <div className="flex items-center space-x-3">
             <span className="w-2.5 h-2.5 bg-green-400 rounded-full animate-ping" />
             <div>
-              <span className="text-[10px] text-slate-400 font-bold uppercase block">Logged In Team</span>
-              <span className="text-base font-black text-white">{teamInfo.teamName}</span>
-              <span className="text-cyan-400 font-mono ml-2">({teamInfo.registrationNumber})</span>
+              <span className="text-[10px] text-slate-400 font-bold uppercase block">Logged In Individual Team</span>
+              <div className="flex items-center space-x-2">
+                <span className="text-base font-black text-white">{teamInfo.teamName}</span>
+                <span className="text-cyan-400 font-mono">({teamInfo.registrationNumber})</span>
+              </div>
             </div>
-          </div>
 
+            {/* Team Switcher Selector */}
+            {teamsList.length > 1 && (
+              <select
+                value={teamInfo.id}
+                onChange={(e) => {
+                  const found = teamsList.find((t) => t.id === e.target.value);
+                  if (found) handleSelectTeam(found);
+                }}
+                className="ml-3 bg-slate-900 border border-slate-700 hover:border-cyan-400 text-xs font-bold text-cyan-300 rounded-xl px-3 py-1.5 focus:outline-none"
+              >
+                <option value="" disabled>-- Switch Team --</option>
+                {teamsList.map((t) => (
+                  <option key={t.id} value={t.id}>
+                    {t.registrationNumber} - {t.teamName} ({t.points} PTS)
+                  </option>
+                ))}
+              </select>
+            )}
+          </div>
+        ) : (
+          <div className="flex flex-col sm:flex-row items-center space-y-2 sm:space-y-0 sm:space-x-4 w-full justify-between">
+            <div className="flex items-center space-x-2 text-yellow-400 font-bold">
+              <AlertCircle className="w-5 h-5 text-yellow-400 animate-pulse" />
+              <span>Select Your Registered Team to Enter Individual Auction Screen:</span>
+            </div>
+
+            <select
+              value=""
+              onChange={(e) => {
+                const found = teamsList.find((t) => t.id === e.target.value);
+                if (found) handleSelectTeam(found);
+              }}
+              className="bg-cyan-500/10 border-2 border-cyan-400 text-white font-bold rounded-xl px-4 py-2 text-xs hover:bg-cyan-500/20 focus:outline-none shadow-lg cursor-pointer"
+            >
+              <option value="" disabled className="bg-slate-900 text-slate-400">-- Choose Your Team ({teamsList.length} Registered) --</option>
+              {teamsList.map((t) => (
+                <option key={t.id} value={t.id} className="bg-slate-900 text-white">
+                  {t.registrationNumber} - {t.teamName} ({t.points} PTS)
+                </option>
+              ))}
+            </select>
+          </div>
+        )}
+
+        {teamInfo && (
           <div className="flex items-center space-x-4">
             {/* PROMINENT BALANCE POINT DISPLAY */}
             <div className="px-5 py-2 rounded-xl bg-slate-900 border border-green-500/40 text-center shadow-lg">
@@ -497,8 +548,8 @@ export const LivePage: React.FC = () => {
               </span>
             </div>
           </div>
-        </div>
-      )}
+        )}
+      </div>
 
       {/* MAIN SCREEN BODY */}
       {!auction || ['IDLE', 'CANCELLED', 'WAITING', 'COMPLETED'].includes(status) ? (
