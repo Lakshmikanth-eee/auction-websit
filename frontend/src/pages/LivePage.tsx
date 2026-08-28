@@ -194,6 +194,7 @@ export const LivePage: React.FC = () => {
 
   useEffect(() => {
     fetchLiveState();
+    const syncInterval = setInterval(fetchLiveState, 1000);
 
     // Check if team is logged in and notify backend of presence
     const teamInfoStr = localStorage.getItem('team_info');
@@ -288,6 +289,7 @@ export const LivePage: React.FC = () => {
     });
 
     return () => {
+      clearInterval(syncInterval);
       socket.off('initial_state');
       socket.off('auction_state_update');
       socket.off('timer_updated');

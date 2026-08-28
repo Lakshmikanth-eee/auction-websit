@@ -1,10 +1,25 @@
 import { io, Socket } from 'socket.io-client';
 
-const SOCKET_URL =
-  (import.meta as any).env?.VITE_SOCKET_URL ||
-  (window.location.origin.includes('5173')
-    ? 'http://localhost:5000'
-    : window.location.origin);
+const DEFAULT_BACKEND_URL = 'https://auction-websit.onrender.com';
+
+const getSocketUrl = () => {
+  if ((import.meta as any).env?.VITE_SOCKET_URL) {
+    return (import.meta as any).env.VITE_SOCKET_URL;
+  }
+  if (typeof window !== 'undefined') {
+    const host = window.location.hostname;
+    if (host === 'localhost' || host === '127.0.0.1') {
+      return 'http://localhost:5000';
+    }
+    if (host.endsWith('netlify.app') || host.endsWith('vercel.app')) {
+      return DEFAULT_BACKEND_URL;
+    }
+    return window.location.origin;
+  }
+  return 'http://localhost:5000';
+};
+
+export const SOCKET_URL = getSocketUrl();
 
 export const socket: Socket = io(SOCKET_URL, {
   autoConnect: true,

@@ -1,4 +1,22 @@
-const API_BASE_URL = (import.meta as any).env?.VITE_API_URL || '/api';
+const DEFAULT_BACKEND_URL = 'https://auction-websit.onrender.com';
+
+const getApiBaseUrl = () => {
+  if ((import.meta as any).env?.VITE_API_URL) {
+    return (import.meta as any).env.VITE_API_URL;
+  }
+  if (typeof window !== 'undefined') {
+    const host = window.location.hostname;
+    if (host === 'localhost' || host === '127.0.0.1') {
+      return 'http://localhost:5000/api';
+    }
+    if (host.endsWith('netlify.app') || host.endsWith('vercel.app')) {
+      return `${DEFAULT_BACKEND_URL}/api`;
+    }
+  }
+  return '/api';
+};
+
+export const API_BASE_URL = getApiBaseUrl();
 
 export const fetchAPI = async (endpoint: string, options: RequestInit = {}) => {
   const token = localStorage.getItem('admin_token');
