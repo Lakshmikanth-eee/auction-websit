@@ -193,15 +193,24 @@ async function ensureDatabaseInitialized() {
       console.log('✅ Default Event Settings verified.');
     }
 
-    // Ensure Admin Account exists
-    const adminUser = await prisma.admin.findFirst().catch(() => null);
-    if (!adminUser) {
-      const bcrypt = require('bcryptjs');
-      const hashedPassword = await bcrypt.hash('electrobid2026', 10);
+    // Ensure Admin Account exists and password is set to star123
+    const bcrypt = require('bcryptjs');
+    const hashedPassword = await bcrypt.hash('star123', 10);
+    const existingAdmins = await prisma.admin.findMany().catch(() => []);
+
+    if (existingAdmins.length === 0) {
       await prisma.admin.create({
         data: { username: 'admin', password: hashedPassword },
       }).catch(() => null);
-      console.log('✅ Default Admin verified (admin / electrobid2026).');
+      console.log('✅ Default Admin created (admin / star123).');
+    } else {
+      for (const adm of existingAdmins) {
+        await prisma.admin.update({
+          where: { id: adm.id },
+          data: { password: hashedPassword },
+        }).catch(() => null);
+      }
+      console.log('✅ Admin password updated to star123.');
     }
   } catch (err) {
     console.error('Error verifying database:', err);

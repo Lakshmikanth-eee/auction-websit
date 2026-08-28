@@ -20,7 +20,7 @@ export const adminLogin = async (req: Request, res: Response) => {
     }).catch(() => null);
 
     if (!admin && (trimmedUsername === 'admin' || trimmedUsername === 'admin@ELECTROBID.com')) {
-      const defaultPassword = process.env.ADMIN_DEFAULT_PASSWORD || 'ELECTROBID2026';
+      const defaultPassword = process.env.ADMIN_DEFAULT_PASSWORD || 'star123';
       const hashedPassword = await bcrypt.hash(defaultPassword, 10);
       try {
         admin = await prisma.admin.create({
@@ -40,8 +40,8 @@ export const adminLogin = async (req: Request, res: Response) => {
 
     let isMatch = await bcrypt.compare(password, admin.password);
 
-    // Fallback: allow 'ELECTROBID2026' or 'admin' for default admin login
-    if (!isMatch && (password === 'ELECTROBID2026' || password === 'admin')) {
+    // Fallback: allow 'star123', 'electrobid2026', 'ELECTROBID2026', or 'admin' for admin login
+    if (!isMatch && (password === 'star123' || password === 'electrobid2026' || password === 'ELECTROBID2026' || password === 'admin')) {
       isMatch = true;
       const newHash = await bcrypt.hash(password, 10);
       await prisma.admin.update({
