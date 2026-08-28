@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 import { fetchAPI } from '../services/api';
 import { socket } from '../services/socket';
 import confetti from 'canvas-confetti';
-import { Zap, Trophy, Timer, Crown, CheckCircle2, XCircle, Award, Flame, AlertCircle } from 'lucide-react';
+import { Zap, Trophy, Timer, Crown, CheckCircle2, XCircle, Award, Flame, AlertCircle, LogIn } from 'lucide-react';
 
 interface Question {
   id: string;
@@ -502,60 +503,33 @@ export const LivePage: React.FC = () => {
         </div>
       </div>
 
-      {/* TEAM STATUS BAR (INDIVIDUAL TEAM LOGIN & SWITCHER) */}
+      {/* TEAM STATUS BAR (AUTHENTICATED INDIVIDUAL TEAM SESSION) */}
       <div className="bg-[#0d1424]/90 border border-cyan-500/30 rounded-2xl px-6 py-3.5 my-2 flex flex-col sm:flex-row justify-between items-center text-xs shadow-xl relative z-20 gap-3">
         {teamInfo ? (
           <div className="flex items-center space-x-3">
             <span className="w-2.5 h-2.5 bg-green-400 rounded-full animate-ping" />
             <div>
-              <span className="text-[10px] text-slate-400 font-bold uppercase block">Logged In Individual Team</span>
+              <span className="text-[10px] text-slate-400 font-bold uppercase block">Logged In Team</span>
               <div className="flex items-center space-x-2">
                 <span className="text-base font-black text-white">{teamInfo.teamName}</span>
                 <span className="text-cyan-400 font-mono">({teamInfo.registrationNumber})</span>
               </div>
             </div>
-
-            {/* Team Switcher Selector */}
-            {teamsList.length > 1 && (
-              <select
-                value={teamInfo.id}
-                onChange={(e) => {
-                  const found = teamsList.find((t) => t.id === e.target.value);
-                  if (found) handleSelectTeam(found);
-                }}
-                className="ml-3 bg-slate-900 border border-slate-700 hover:border-cyan-400 text-xs font-bold text-cyan-300 rounded-xl px-3 py-1.5 focus:outline-none"
-              >
-                <option value="" disabled>-- Switch Team --</option>
-                {teamsList.map((t) => (
-                  <option key={t.id} value={t.id}>
-                    {t.registrationNumber} - {t.teamName} ({t.points} PTS)
-                  </option>
-                ))}
-              </select>
-            )}
           </div>
         ) : (
           <div className="flex flex-col sm:flex-row items-center space-y-2 sm:space-y-0 sm:space-x-4 w-full justify-between">
             <div className="flex items-center space-x-2 text-yellow-400 font-bold">
               <AlertCircle className="w-5 h-5 text-yellow-400 animate-pulse" />
-              <span>Select Your Registered Team to Enter Individual Auction Screen:</span>
+              <span>Team Session Not Logged In. Please log in with your registered Team Name:</span>
             </div>
 
-            <select
-              value=""
-              onChange={(e) => {
-                const found = teamsList.find((t) => t.id === e.target.value);
-                if (found) handleSelectTeam(found);
-              }}
-              className="bg-cyan-500/10 border-2 border-cyan-400 text-white font-bold rounded-xl px-4 py-2 text-xs hover:bg-cyan-500/20 focus:outline-none shadow-lg cursor-pointer"
+            <Link
+              to="/login"
+              className="bg-gradient-to-r from-cyan-500 to-blue-600 text-black font-extrabold rounded-xl px-5 py-2 text-xs hover:from-cyan-400 hover:to-blue-500 focus:outline-none shadow-lg cursor-pointer flex items-center space-x-1.5"
             >
-              <option value="" disabled className="bg-slate-900 text-slate-400">-- Choose Your Team ({teamsList.length} Registered) --</option>
-              {teamsList.map((t) => (
-                <option key={t.id} value={t.id} className="bg-slate-900 text-white">
-                  {t.registrationNumber} - {t.teamName} ({t.points} PTS)
-                </option>
-              ))}
-            </select>
+              <LogIn className="w-4 h-4" />
+              <span>TEAM LOGIN HERE</span>
+            </Link>
           </div>
         )}
 

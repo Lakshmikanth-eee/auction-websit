@@ -98,34 +98,10 @@ export const TeamLoginPage: React.FC = () => {
           )}
 
           <form onSubmit={handleLogin} className="space-y-6">
-            {/* Registered Teams Quick Dropdown */}
-            {registeredTeams.length > 0 && (
-              <div>
-                <label className="block text-xs font-bold text-slate-300 uppercase mb-2">
-                  Select Registered Team Dropdown
-                </label>
-                <select
-                  value={identifier}
-                  onChange={(e) => {
-                    setIdentifier(e.target.value);
-                    setError(null);
-                  }}
-                  className="w-full bg-slate-900 border border-slate-700 focus:border-cyan-400 rounded-xl p-3.5 text-white text-sm focus:outline-none"
-                >
-                  <option value="">-- Select Your Registered Team --</option>
-                  {registeredTeams.map((t) => (
-                    <option key={t.id} value={t.teamName}>
-                      ⚡ {t.teamName} ({t.registrationNumber} - {t.collegeName})
-                    </option>
-                  ))}
-                </select>
-              </div>
-            )}
-
-            {/* Manual Text Input Option */}
+            {/* Team Credential Input */}
             <div>
               <label className="block text-xs font-bold text-slate-300 uppercase mb-2">
-                Or Type Team Name / Reg #
+                Enter Registered Team Name or Registration Number
               </label>
               <div className="relative">
                 <Users className="w-5 h-5 text-slate-400 absolute left-3.5 top-3.5" />
