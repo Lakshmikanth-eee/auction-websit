@@ -51,7 +51,16 @@ export const LivePage: React.FC = () => {
     try {
       const res = await fetchAPI('/auction/current');
       if (res.success) {
-        setAuction(res.auction);
+        setAuction((prev: any) => {
+          if (!res.auction) return null;
+          if (prev && prev.id === res.auction.id && prev.isTimerRunning && res.auction.isTimerRunning) {
+            const diff = Math.abs((prev.timerRemaining || 0) - (res.auction.timerRemaining || 0));
+            if (diff <= 3) {
+              return { ...res.auction, timerRemaining: prev.timerRemaining };
+            }
+          }
+          return res.auction;
+        });
         setHighestBidder(res.highestBidderTeam);
         setWinningTeam(res.winningTeam);
       }
@@ -210,9 +219,21 @@ export const LivePage: React.FC = () => {
     }
   };
 
+  // 1-second local ticking countdown for smooth visual timer decrement
+  useEffect(() => {
+    if (!auction?.isTimerRunning || auction?.timerRemaining === undefined || auction?.timerRemaining <= 0) return;
+    const tickInterval = setInterval(() => {
+      setAuction((prev: any) => {
+        if (!prev || !prev.isTimerRunning || prev.timerRemaining <= 0) return prev;
+        return { ...prev, timerRemaining: prev.timerRemaining - 1 };
+      });
+    }, 1000);
+    return () => clearInterval(tickInterval);
+  }, [auction?.isTimerRunning, auction?.id]);
+
   useEffect(() => {
     fetchLiveState();
-    const syncInterval = setInterval(fetchLiveState, 1000);
+    const syncInterval = setInterval(fetchLiveState, 3000);
 
     // Check if team is logged in and notify backend of presence
     const teamInfoStr = localStorage.getItem('team_info');

@@ -106,6 +106,18 @@ export const AdminAuctionPage: React.FC = () => {
     }
   };
 
+  // 1-second local ticking countdown for smooth visual timer decrement
+  useEffect(() => {
+    if (!auction?.isTimerRunning || auction?.timerRemaining === undefined || auction?.timerRemaining <= 0) return;
+    const tickInterval = setInterval(() => {
+      setAuction((prev: any) => {
+        if (!prev || !prev.isTimerRunning || prev.timerRemaining <= 0) return prev;
+        return { ...prev, timerRemaining: prev.timerRemaining - 1 };
+      });
+    }, 1000);
+    return () => clearInterval(tickInterval);
+  }, [auction?.isTimerRunning, auction?.id]);
+
   useEffect(() => {
     loadAuctionData();
 

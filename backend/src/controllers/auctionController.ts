@@ -5,6 +5,7 @@ import { Server } from 'socket.io';
 
 let ioInstance: Server | null = null;
 let timerInterval: NodeJS.Timeout | null = null;
+let activeTimerEndTime: number | null = null;
 
 export const setAuctionSocketIO = (io: Server) => {
   ioInstance = io;
@@ -24,6 +25,14 @@ export const broadcastAuctionState = async () => {
       },
     },
   });
+
+  if (currentAuction && currentAuction.isTimerRunning && activeTimerEndTime) {
+    const remaining = Math.max(0, Math.ceil((activeTimerEndTime - Date.now()) / 1000));
+    currentAuction.timerRemaining = remaining;
+    if (remaining <= 0) {
+      currentAuction.isTimerRunning = false;
+    }
+  }
 
   let highestBidderTeam = null;
   let winningTeam = null;
@@ -62,6 +71,14 @@ export const getCurrentAuction = async (_req: Request, res: Response) => {
         },
       },
     });
+
+    if (currentAuction && currentAuction.isTimerRunning && activeTimerEndTime) {
+      const remaining = Math.max(0, Math.ceil((activeTimerEndTime - Date.now()) / 1000));
+      currentAuction.timerRemaining = remaining;
+      if (remaining <= 0) {
+        currentAuction.isTimerRunning = false;
+      }
+    }
 
     let highestBidderTeam = null;
     let winningTeam = null;
@@ -824,34 +841,29 @@ export const applyNonBiddingPenalty = async (req: AuthRequest, res: Response) =>
 function startServerTimer(auctionId: string, timerType: string, startSeconds: number) {
   stopServerTimer();
 
-  let remaining = startSeconds;
+  activeTimerEndTime = Date.now() + startSeconds * 1000;
+
   timerInterval = setInterval(async () => {
-    remaining -= 1;
+    if (!activeTimerEndTime) return;
+    const remaining = Math.max(0, Math.ceil((activeTimerEndTime - Date.now()) / 1000));
 
     if (ioInstance) {
       ioInstance.emit('timer_updated', {
         auctionId,
         timerType,
-        timerRemaining: Math.max(0, remaining),
+        timerRemaining: remaining,
         isTimerRunning: remaining > 0,
       });
     }
 
-    // Save timer remaining state periodically
-    if (remaining % 5 === 0 || remaining <= 0) {
-      await prisma.auction.update({
-        where: { id: auctionId },
-        data: { timerRemaining: Math.max(0, remaining), isTimerRunning: remaining > 0 },
-      }).catch(() => {});
-    }
+    // Save accurate timer remaining state in DB
+    await prisma.auction.update({
+      where: { id: auctionId },
+      data: { timerRemaining: remaining, isTimerRunning: remaining > 0 },
+    }).catch(() => {});
 
     if (remaining <= 0) {
       stopServerTimer();
-
-      await prisma.auction.update({
-        where: { id: auctionId },
-        data: { timerRemaining: 0, isTimerRunning: false },
-      }).catch(() => {});
 
       if (timerType === 'BIDDING') {
         await closeBiddingInternal(auctionId);
@@ -869,6 +881,7 @@ function stopServerTimer() {
     clearInterval(timerInterval);
     timerInterval = null;
   }
+  activeTimerEndTime = null;
 }
 
 async function closeBiddingInternal(auctionId: string) {
