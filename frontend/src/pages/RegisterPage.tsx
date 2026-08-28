@@ -49,6 +49,9 @@ export const RegisterPage: React.FC = () => {
 
       if (response.success && response.team) {
         setRegisteredTeam(response.team);
+        if (response.token) {
+          localStorage.setItem('team_token', response.token);
+        }
         localStorage.setItem('team_info', JSON.stringify(response.team));
         // Automatically enter into auction screen
         setTimeout(() => {

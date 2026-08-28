@@ -4,6 +4,7 @@ import {
   registerTeam,
   teamLogin,
   getPublicTeams,
+  getMyTeamProfile,
   getTeams,
   getTeamById,
   updateTeam,
@@ -47,7 +48,7 @@ import {
   deleteScoreTransactionItem,
   clearAllHistoryLogs,
 } from '../controllers/leaderboardController';
-import { authenticateAdmin } from '../middleware/auth';
+import { authenticateAdmin, authenticateTeam } from '../middleware/auth';
 
 const router = Router();
 
@@ -55,6 +56,7 @@ const router = Router();
 router.post('/admin/login', adminLogin);
 router.post('/teams/register', registerTeam);
 router.post('/teams/login', teamLogin);
+router.get('/teams/me', authenticateTeam as any, getMyTeamProfile as any);
 router.get('/teams', getPublicTeams);
 router.get('/leaderboard', getLeaderboard);
 router.get('/final-results', getFinalResults);

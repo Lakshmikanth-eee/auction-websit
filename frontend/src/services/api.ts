@@ -19,7 +19,9 @@ const getApiBaseUrl = () => {
 export const API_BASE_URL = getApiBaseUrl();
 
 export const fetchAPI = async (endpoint: string, options: RequestInit = {}) => {
-  const token = localStorage.getItem('admin_token');
+  const adminToken = localStorage.getItem('admin_token');
+  const teamToken = localStorage.getItem('team_token');
+  const token = endpoint.startsWith('/admin') ? (adminToken || teamToken) : (teamToken || adminToken);
 
   const headers: Record<string, string> = {
     'Content-Type': 'application/json',

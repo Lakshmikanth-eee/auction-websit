@@ -67,20 +67,29 @@ export const LivePage: React.FC = () => {
       const teamsRes = await fetchAPI('/teams');
       if (teamsRes.success && teamsRes.teams) {
         setTeamsList(teamsRes.teams);
-        const storedStr = localStorage.getItem('team_info');
-        if (storedStr) {
-          try {
-            const parsed = JSON.parse(storedStr);
-            const matchingTeam = teamsRes.teams.find((t: any) =>
-              (parsed.id && String(t.id) === String(parsed.id)) ||
-              (parsed.registrationNumber && String(t.registrationNumber) === String(parsed.registrationNumber)) ||
-              (parsed.teamName && String(t.teamName).trim().toLowerCase() === String(parsed.teamName).trim().toLowerCase())
-            );
-            if (matchingTeam) {
-              setTeamInfo(matchingTeam);
-              localStorage.setItem('team_info', JSON.stringify(matchingTeam));
-            }
-          } catch (e) {}
+        
+        // 1. First try loading authenticated team session via JWT token (/api/teams/me)
+        const myTeamRes = await fetchAPI('/teams/me').catch(() => null);
+        if (myTeamRes?.success && myTeamRes?.team) {
+          setTeamInfo(myTeamRes.team);
+          localStorage.setItem('team_info', JSON.stringify(myTeamRes.team));
+        } else {
+          // 2. Fallback to device stored team_info matching by unique team identity
+          const storedStr = localStorage.getItem('team_info');
+          if (storedStr) {
+            try {
+              const parsed = JSON.parse(storedStr);
+              const matchingTeam = teamsRes.teams.find((t: any) =>
+                (parsed.id && String(t.id) === String(parsed.id)) ||
+                (parsed.registrationNumber && String(t.registrationNumber) === String(parsed.registrationNumber)) ||
+                (parsed.teamName && String(t.teamName).trim().toLowerCase() === String(parsed.teamName).trim().toLowerCase())
+              );
+              if (matchingTeam) {
+                setTeamInfo(matchingTeam);
+                localStorage.setItem('team_info', JSON.stringify(matchingTeam));
+              }
+            } catch (e) {}
+          }
         }
       }
     } catch (err) {

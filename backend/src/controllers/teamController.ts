@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
+import jwt from 'jsonwebtoken';
 import { prisma } from '../prisma/db';
-import { AuthRequest } from '../middleware/auth';
+import { AuthRequest, TeamAuthRequest } from '../middleware/auth';
 import { Server } from 'socket.io';
 
 let ioInstance: Server | null = null;
@@ -69,9 +70,24 @@ export const registerTeam = async (req: Request, res: Response) => {
       ioInstance.emit('leaderboard_updated');
     }
 
+    const secret = process.env.JWT_SECRET || 'ELECTROBID_super_secure_jwt_secret_2026_key';
+    const token = jwt.sign(
+      { teamId: team.id, registrationNumber: team.registrationNumber, teamName: team.teamName },
+      secret,
+      { expiresIn: '7d' }
+    );
+
+    res.cookie('team_token', token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
+      maxAge: 7 * 24 * 60 * 60 * 1000,
+    });
+
     return res.status(201).json({
       success: true,
       message: 'Registration Successful!',
+      token,
       team: {
         id: team.id,
         registrationNumber: team.registrationNumber,
@@ -405,9 +421,24 @@ export const teamLogin = async (req: Request, res: Response) => {
       });
     }
 
+    const secret = process.env.JWT_SECRET || 'ELECTROBID_super_secure_jwt_secret_2026_key';
+    const token = jwt.sign(
+      { teamId: team.id, registrationNumber: team.registrationNumber, teamName: team.teamName },
+      secret,
+      { expiresIn: '7d' }
+    );
+
+    res.cookie('team_token', token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
+      maxAge: 7 * 24 * 60 * 60 * 1000,
+    });
+
     return res.json({
       success: true,
       message: `Welcome ${team.teamName}! Entering live auction...`,
+      token,
       team: {
         id: team.id,
         registrationNumber: team.registrationNumber,
@@ -422,6 +453,24 @@ export const teamLogin = async (req: Request, res: Response) => {
   } catch (error: any) {
     console.error('Team login error:', error);
     return res.status(500).json({ success: false, message: 'Server error during team login.' });
+  }
+};
+
+// 10. PROTECTED: Get currently authenticated team profile via JWT
+export const getMyTeamProfile = async (req: TeamAuthRequest, res: Response) => {
+  try {
+    if (!req.team || !req.team.teamId) {
+      return res.status(401).json({ success: false, message: 'Not authenticated as team.' });
+    }
+    const team = await prisma.team.findUnique({
+      where: { id: req.team.teamId },
+    });
+    if (!team) {
+      return res.status(404).json({ success: false, message: 'Team profile not found.' });
+    }
+    return res.json({ success: true, team });
+  } catch (error: any) {
+    return res.status(500).json({ success: false, message: 'Error fetching team profile.' });
   }
 };
 

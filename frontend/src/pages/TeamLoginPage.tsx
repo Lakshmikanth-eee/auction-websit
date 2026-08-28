@@ -48,7 +48,10 @@ export const TeamLoginPage: React.FC = () => {
       });
 
       if (res.success && res.team) {
-        // Store team session info
+        // Store team session info & authentication token
+        if (res.token) {
+          localStorage.setItem('team_token', res.token);
+        }
         localStorage.setItem('team_info', JSON.stringify(res.team));
 
         // Connect team to live auction room socket
