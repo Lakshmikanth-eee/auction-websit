@@ -49,7 +49,7 @@ export const AdminTeamsPage: React.FC = () => {
 
   // Bulk Points Modal state
   const [bulkPointsModal, setBulkPointsModal] = useState<boolean>(false);
-  const [bulkPointsValue, setBulkPointsValue] = useState<number | string>(50000);
+  const [bulkPointsValue, setBulkPointsValue] = useState<number | string>(10000);
   const [bulkPointsApplyToAll, setBulkPointsApplyToAll] = useState<boolean>(true);
   const [bulkPointsReason, setBulkPointsReason] = useState<string>('Admin set initial team starting balance');
 
@@ -885,7 +885,7 @@ export const AdminTeamsPage: React.FC = () => {
                         Number(bulkPointsValue) === 10000 ? 'bg-emerald-500/20 border-emerald-500 text-emerald-400' : 'bg-slate-900 border-slate-700 text-slate-400'
                       }`}
                     >
-                      10,000 PTS
+                      10,000 PTS (Default)
                     </button>
                     <button
                       type="button"
@@ -894,7 +894,7 @@ export const AdminTeamsPage: React.FC = () => {
                         Number(bulkPointsValue) === 50000 ? 'bg-emerald-500/20 border-emerald-500 text-emerald-400' : 'bg-slate-900 border-slate-700 text-slate-400'
                       }`}
                     >
-                      50,000 PTS (Default)
+                      50,000 PTS
                     </button>
                     <button
                       type="button"

@@ -25,7 +25,7 @@ model Team {
   department         String
   phone              String
   email              String
-  points             Int                @default(50000)
+  points             Int                @default(10000)
   status             String             @default("ACTIVE") // ACTIVE, DISABLED
   correctAnswers     Int                @default(0)
   wrongAnswers       Int                @default(0)
@@ -101,7 +101,7 @@ model EventSettings {
   eventSubtitle        String  @default("THE EEE AUCTION CHALLENGE")
   currentAuctionId    String?
   eventStatus         String  @default("NOT_STARTED") // NOT_STARTED, IN_PROGRESS, PAUSED, COMPLETED
-  startingPoints      Int     @default(50000)
+  startingPoints      Int     @default(10000)
   minBidIncrement     Int     @default(100)
   biddingTimerDefault Int     @default(90)
   answerTimerDefault  Int     @default(30)

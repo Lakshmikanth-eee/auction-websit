@@ -59,7 +59,7 @@ export const registerTeam = async (req: Request, res: Response) => {
         department: department.trim(),
         phone: phone ? phone.trim() : '',
         email: email && email.trim() ? email.trim() : `${trimmedTeamName.toLowerCase().replace(/\s+/g, '')}@ELECTROBID.com`,
-        points: 50000,
+        points: 10000,
         status: 'ACTIVE',
       },
     });

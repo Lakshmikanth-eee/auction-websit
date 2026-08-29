@@ -184,7 +184,7 @@ async function ensureDatabaseInitialized() {
           eventName: 'ELECTROBID',
           eventSubtitle: 'THE EEE AUCTION CHALLENGE',
           eventStatus: 'NOT_STARTED',
-          startingPoints: 50000,
+          startingPoints: 10000,
           minBidIncrement: 100,
           biddingTimerDefault: 30,
           answerTimerDefault: 30,
